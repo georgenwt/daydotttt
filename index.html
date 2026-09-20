@@ -613,13 +613,13 @@
 
   <script>
     const products = [
-      // --- POWDERS ---
+      // POWDERS
       { name: "HOT CHOCOLATE POWDER", days: 28, label: "4 WEEKS", keywords: ["hc", "hot choc", "cocoa", "powder", "c", "chocolate powder", "drinking chocolate", "hcp", "blackforest hot chocolate", "hot chocolate", "mocha", "white hot chocolate", "clear scoop"] },
       { name: "FRAPPÉ POWDER", days: 84, label: "12 WEEKS", keywords: ["frappe", "frap", "frappy", "ice core", "base", "white base", "powder", "f", "caramel frappe", "vanilla frappe", "chocolate frappe", "strawberries and cream frappe", "coffee frappe", "frappuccino", "coral scoop", "blue scoop"] },
-      { name: "MATCHA POWDER (STORE IN ORIGINAL PACKAGING)", months: 3, days: 0, label: "3 MONTHS", keywords: ["macha", "maca", "green tea", "matcha powder", "m", "matcha latte", "iced matcha", "strawberry matcha", "purple scoop", "original packaging"] },
+      { name: "MATCHA POWDER (STORE IN ORIGINAL PACKAGING)", months: 3, days: 0, label: "3 MONTHS", keywords: ["macha", "maca", "green tea", "matcha powder", "m", "matcha latte", "iced matcha", "strawberry matcha", "purple scoop"] },
       { name: "HYFOAMER POWDER", days: 56, label: "8 WEEKS", keywords: ["hyfoamer", "powder", "foam", "white scoop"] },
       
-      // --- SYRUPS & SAUCES ---
+      // SYRUPS & SAUCES
       { name: "CARAMEL", days: 84, label: "12 WEEKS", keywords: ["carmel", "c", "syrup", "car", "caramel cortado", "caramel latte", "caramel iced latte", "black 4ml pump"] },
       { name: "VANILLA", days: 84, label: "12 WEEKS", keywords: ["vanila", "v", "syrup", "van", "vanilla latte", "vanilla cappuccino", "vanilla iced coffee", "black 4ml pump"] },
       { name: "HAZELNUT", days: 84, label: "12 WEEKS", keywords: ["hazel", "hazlenut", "nut", "h", "syrup", "haz", "hazelnut latte", "black 4ml pump"] },
@@ -629,43 +629,44 @@
       { name: "SF GINGERBREAD", days: 84, label: "12 WEEKS", keywords: ["sugar free gingerbread", "skinny gingerbread", "ginger", "gb", "sf gb", "bread", "spice", "sfgb", "black 4ml pump"] },
       { name: "SPICED CHAI", months: 3, days: 0, label: "3 MONTHS", keywords: ["chai", "tea", "spice", "c", "spicy", "chai syrup", "chai latte", "spiced chai latte", "iced chai", "black 4ml pump"] },
       { name: "CANE SUGAR SYRUP", months: 3, days: 0, label: "3 MONTHS", keywords: ["sugar syrup", "simple syrup", "cane", "css", "c", "liquid sugar", "sweet", "plain syrup", "black 4ml pump"] },
-      { name: "MONIN SUGAR FREE", months: 3, days: 0, label: "3 MONTHS", keywords: ["sugar free syrup", "monin sf", "sf syrup", "black 4ml pump"] },
       { name: "WHITE CHOCOLATE SAUCE", days: 84, label: "12 WEEKS", keywords: ["white choc", "wcs", "white sauce", "wc sauce", "w", "white chocolate", "white 10ml pump"] },
       { name: "SALTED CARAMEL SAUCE", days: 84, label: "12 WEEKS", keywords: ["salted carmel", "scs", "salt caramel", "sauce", "salt", "salted", "white 10ml pump"] },
       { name: "STRAWBERRY SAUCE", days: 84, label: "12 WEEKS", keywords: ["strawbery", "berry", "strawb", "red sauce", "sauce", "strawberry", "white 10ml pump"] },
       { name: "MANGO SAUCE", days: 84, label: "12 WEEKS", keywords: ["mango", "fruit", "sauce", "yellow sauce", "white 10ml pump"] },
       { name: "CHOCOLATE CARAMEL SAUCE", days: 84, label: "12 WEEKS", keywords: ["choc caramel", "ccs", "c", "choc sauce", "chocolate sauce", "white 10ml pump"] },
       { name: "MONIN WHITE PEACH SYRUP", months: 3, days: 0, label: "3 MONTHS", keywords: ["peach", "white peach", "monin", "wp", "syrup", "fruit syrup", "grey 8ml pump"] },
-      { name: "CONDENSED MILK SAUCE", days: 56, label: "8 WEEKS", keywords: ["condensed milk", "condensed", "milk sauce", "cms", "white 10ml pump", "sweet milk"] },
-      { name: "MAPLE FLAVOURED SAUCE", days: 84, label: "12 WEEKS", keywords: ["maple", "maple sauce", "maple flavoured sauce", "mfs", "pancake", "syrup", "white 10ml pump"] },
+      { name: "CONDENSED MILK SAUCE", days: 56, label: "8 WEEKS", keywords: ["condensed milk", "milk sauce", "condensed", "cms", "white 10ml pump", "sweet milk"] },
+      { name: "MAPLE FLAVOURED SAUCE", days: 84, label: "12 WEEKS", keywords: ["maple", "maple sauce", "maple flavoured", "pancake syrup", "white 10ml pump"] },
       { name: "AGAVE FLAVOURED SYRUP", days: 60, label: "60 DAYS", keywords: ["agave", "syrup", "vegan", "sweetener", "black 4ml pump"] },
-      { name: "MONIN JASMINE SYRUP", months: 3, days: 0, label: "3 MONTHS", keywords: ["jasmine", "monin", "syrup", "floral", "grey 8ml pump"] },
+      { name: "MONIN SUGAR FREE", months: 3, days: 0, label: "3 MONTHS", keywords: ["sugar free syrup", "monin sf", "sf syrup"] },
+      { name: "MONIN JASMINE SYRUP", months: 3, days: 0, label: "3 MONTHS", keywords: ["jasmine", "monin", "syrup", "floral"] },
       { name: "CHERRY VANILLA SAUCE", days: 56, label: "8 WEEKS", keywords: ["cherry", "cvs", "c", "sauce", "vanilla cherry", "chery"] },
       { name: "UBE FLAVOUR SYRUP", days: 42, label: "6 WEEKS", keywords: ["ube", "purple", "oobe", "yam", "syrup", "flavour"] },
       { name: "HAZELNUT CRÈME FLAVOUR SAUCE", days: 56, label: "8 WEEKS", keywords: ["hazelnut creme", "creme", "sauce", "hazelnut sauce", "hcs"] },
 
-      // --- COFFEE / TOPPINGS / EXTRAS / CAMPAIGN TOPPINGS ---
+      // COFFEE / TOPPINGS / EXTRAS / CAMPAIGN TOPPINGS
       { name: "OPEN MOCHA ITALIA COFFEE BAGS", days: 2, label: "48 HOURS", includeTime: true, keywords: ["beans", "coffee beans", "mocha italia", "espresso", "c", "mi", "roast", "bag", "latte", "cappuccino", "flat white", "americano", "cortado", "macchiato", "iced latte", "iced americano", "ristretto"] },
       { name: "COSTA INSTANT COFFEE", days: 28, label: "4 WEEKS", keywords: ["instant", "c", "coffee", "tin", "powder", "decaf instant", "purple scoop"] },
       { name: "CAPPUCCINO DUSTING", days: 28, label: "4 WEEKS", keywords: ["dusting", "choc dusting", "capp", "c", "chocolate shaker", "sprinkles", "shaker"] },
-      { name: "MANGO BUBBLES (KEEP CHILLED)", days: 28, label: "4 WEEKS", keywords: ["boba", "bubbles", "pearls", "mango boba", "popping", "balls", "bubble tea", "bubble frappe", "clear scoop", "chilled"] },
+      { name: "MANGO BUBBLES (KEEP CHILLED)", days: 28, label: "4 WEEKS", keywords: ["boba", "bubbles", "pearls", "mango boba", "popping", "balls", "bubble tea", "bubble frappe", "chilled", "clear scoop"] },
       { name: "FRUIT COOLER BASES (KEEP CHILLED)", days: 4, label: "5 DAYS", keywords: ["cooler", "fruit cooler", "base", "smoothie", "c", "puree", "slush", "slushy", "mango and passionfruit cooler", "red summer berries cooler", "mango cooler", "berry cooler", "watermelon", "refresher", "chilled"] }, 
-      { name: "STRAWBERRY, WATERMELON & MINT CONCENTRATE", days: 10, label: "10 DAYS", keywords: ["refresher", "concentrate", "juice", "drink", "watermelon refresher", "strawberry refresher", "mint", "strawberry watermelon", "all refresher concentrates"] },
+      { name: "STRAWBERRY, WATERMELON & MINT CONCENTRATE", days: 10, label: "10 DAYS", keywords: ["refresher", "concentrate", "juice", "drink", "watermelon refresher", "strawberry watermelon", "mint", "refresher concentrate"] },
       { name: "FREEZE DRIED STRAWBERRY PIECES", days: 21, label: "21 DAYS", keywords: ["freeze dried", "strawberry", "pieces", "fruit", "inclusion", "dry", "purple scoop"] },
-      { name: "MARSHMALLOWS", specialText: "SEE BAG FOR BEST BEFORE", label: "VARIES", keywords: ["marshmalows", "mallows", "mini marshmallows", "fluffy", "marshmellows"] },
-      { name: "ALL TEABAGS", months: 3, days: 0, label: "3 MONTHS", keywords: ["tea", "teabags", "all teabags", "tea & infusions", "english breakfast tea", "decaf english breakfast", "earl grey", "peppermint tea", "mint infusion", "berry infusion", "green tea", "spiced apple", "mellow mango", "citrus zing", "infusions", "bags", "eb", "decaf", "fruit tea", "apple and cinnamon tea"] },
+      { name: "MARSHMALLOWS", specialText: "SEE BAG FOR BEST BEFORE DATE", label: "VARIES", keywords: ["marshmalows", "mallows", "mini marshmallows", "fluffy", "marshmellows"] },
+      { name: "ALL TEABAGS", months: 3, days: 0, label: "3 MONTHS", keywords: ["english breakfast tea", "decaf english breakfast", "earl grey", "peppermint tea", "mint infusion", "berry infusion", "green tea", "spiced apple", "mellow mango", "citrus zing", "infusions", "teabags", "bags", "eb", "decaf", "fruit tea", "apple and cinnamon tea", "tea"] },
       { name: "CINNAMON STICKS", months: 6, days: 0, label: "6 MONTHS", keywords: ["cinnamon", "sticks", "spice", "garnish"] },
-      { name: "LEMON / ORANGE SLICES", days: 28, label: "4 WEEKS", keywords: ["lemon", "orange", "citrus", "garnish", "fruit", "slice", "slices", "orange slices", "lemon slices"] },
+      { name: "LEMON / ORANGE SLICES", days: 28, label: "4 WEEKS", keywords: ["lemon", "orange", "citrus", "garnish", "fruit", "slice", "lemon slices", "orange slices"] },
       { name: "CHILLED WATER IN JUG", days: 1, label: "24 HOURS", includeTime: true, keywords: ["water", "jug", "h2o", "tap", "c", "cold water", "pitcher", "chilled"] },
       { name: "PREPARED MATCHA IN SQUEEZY BOTTLE (KEEP CHILLED)", days: 2, label: "48 HOURS", includeTime: true, keywords: ["liquid matcha", "squeezy", "macha", "bottle", "prep matcha", "made matcha", "chilled"] },
-      { name: "CRUNCHY BISCUIT CRUMB", days: 28, label: "4 WEEKS", keywords: ["biscuit", "crumb", "crunchy", "biscuit crumb", "topping", "cookie", "crunchy biscuit crumb"] },
+      { name: "CRUNCHY BISCUIT CRUMB", days: 28, label: "4 WEEKS", keywords: ["biscuit", "crumb", "biscuit crumb", "crunchy", "topping", "crunchy biscuit"] },
+      { name: "ALL REFRESHER CONCENTRATES", days: 10, label: "10 DAYS", keywords: ["refresher", "concentrate", "juice", "drink"] },
       { name: "FREEZE DRIED DRAGON FRUIT PIECES", days: 21, label: "21 DAYS", keywords: ["freeze dried", "dragon fruit", "pieces", "fruit", "inclusion", "dragonfruit", "dry"] },
       { name: "FREEZE DRIED LIME PIECES", months: 6, days: 0, label: "6 MONTHS", keywords: ["freeze dried", "lime", "pieces", "fruit", "inclusion", "dry"] },
 
-      // --- DAIRY ALTERNATIVES / LIGHT WHIP / CREAM ---
+      // DAIRY ALTERNATIVES / LIGHT WHIP / CREAM
       { name: "DAIRY ALTERNATIVES / LIGHT WHIP (OPEN CARTON)", days: 4, label: "5 DAYS", keywords: ["milk", "oat", "almond", "soy", "coconut", "soya", "dairy free", "alt milk", "df", "carton", "alpro", "sproud", "adez", "skinny whip carton", "oat latte", "soya flat white", "coconut hot chocolate", "almond milk"] }, 
       { name: "PREPARED LIGHT WHIP / WHIPPED CREAM IN CANISTERS", days: 1, label: "24 HOURS", includeTime: true, keywords: ["skinny whip", "light cream", "canister", "can", "squirt", "made skinny whip", "bottle", "whip", "cream", "heavy"] },
-      { name: "WHIPPING CREAM (OPEN CARTON / BOTTLE)", days: 2, label: "3 DAYS", keywords: ["whip", "cream", "heavy cream", "c", "carton", "liquid cream", "unwhipped", "pour", "bottle"] } 
+      { name: "WHIPPING CREAM (OPEN CARTON / BOTTLE)", days: 2, label: "3 DAYS", keywords: ["whip", "cream", "heavy cream", "c", "carton", "liquid cream", "unwhipped", "pour"] } 
     ];
 
     function getEditDistance(a, b) {
