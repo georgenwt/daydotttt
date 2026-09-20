@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Store Daydot Calculator</title>
+
+  <!-- Color Scheme & System Theme -->
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#730723" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Daydots" />
+
+  <!-- PWA Manifest & Icons -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  <link rel="icon" type="image/png" href="icon.png" />
+
+  <style>
+    /* Local Jost @font-face */
+    @font-face {
+      font-family: 'Jost';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('./fonts/jost-v18-latin-regular.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Jost';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url('./fonts/jost-v18-latin-700.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Jost';
+      font-style: normal;
+      font-weight: 800;
+      font-display: swap;
+      src: url('./fonts/jost-v18-latin-800.woff2') format('woff2');
+    }
+
+    :root {
+      --font-family: 'Jost', 'Brandon Grotesque', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --costa-burgundy: #730723;
+      --costa-dark: #3e0311;
+      --costa-light: #9e1338;
+      --costa-bright-red: #D1102A;
+      --glass-card: rgba(255, 255, 255, 0.16);
+      --glass-border: rgba(255, 255, 255, 0.26);
+      --text-main: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.74);
+      --spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-family);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      color-scheme: dark;
+      background-color: var(--costa-dark);
+      height: 100%;
+    }
+
+    body {
+      color-scheme: dark;
+      min-height: 100vh;
+      min-height: 100dvh;
+      background-color: var(--costa-dark);
+      background-image: radial-gradient(circle at 50% 20%, var(--costa-light), var(--costa-burgundy) 55%, var(--costa-dark));
+      background-attachment: fixed;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: max(12px, env(safe-area-inset-top)) 14px 0;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Ambient Liquid Bubbles */
+    .bubble-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.1) 65%, transparent 80%);
+      box-shadow: inset -4px -4px 10px rgba(0, 0, 0, 0.25), inset 4px 4px 14px rgba(255, 255, 255, 0.35);
+      opacity: 0.5;
+      animation: floatAround infinite ease-in-out alternate;
+    }
+
+    .bubble-1 { width: 140px; height: 140px; top: -30px; left: -25px; animation-duration: 7s; }
+    .bubble-2 { width: 90px; height: 90px; top: 15%; right: -20px; animation-duration: 9.5s; }
+    .bubble-3 { width: 110px; height: 110px; bottom: 12%; left: -30px; animation-duration: 8s; }
+    .bubble-center-1 { width: 130px; height: 130px; top: 38%; left: 15%; opacity: 0.38; animation-duration: 8.5s; animation-delay: -2s; }
+    .bubble-center-2 { width: 100px; height: 100px; top: 52%; right: 18%; opacity: 0.35; animation-duration: 7.2s; animation-delay: -4s; }
+    .bubble-center-3 { width: 75px; height: 75px; top: 46%; left: 45%; opacity: 0.32; animation-duration: 6.8s; animation-delay: -1s; }
+
+    @keyframes floatAround {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(12px, -24px) scale(1.06) rotate(8deg); }
+      100% { transform: translate(-10px, 16px) scale(0.95) rotate(-6deg); }
+    }
+
+    /* App Shell Container */
+    .app-container {
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+      animation: heavyEntrance 0.65s var(--spring-bounce);
+      padding-bottom: calc(96px + env(safe-area-inset-bottom));
+    }
+
+    @keyframes heavyEntrance {
+      0% { opacity: 0; transform: translateY(40px) scale(0.94); }
+      60% { transform: translateY(-8px) scale(1.02); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Liquid Glass Base */
+    .glass-card {
+      background: var(--glass-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 12px 14px;
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+    }
+
+    .header-card {
+      text-align: center;
+      padding: 8px 12px;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    h2 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-align: center;
+      margin-bottom: 12px;
+      color: #ffffff;
+    }
+
+    /* Liquid Glass Search Bar */
+    .search-section {
+      position: sticky;
+      top: max(12px, env(safe-area-inset-top));
+      z-index: 80;
+    }
+
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 50px;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.32);
+      border-radius: 18px;
+      padding: 0 44px 0 44px;
+      color: #ffffff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      outline: none;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      transition: all 0.3s var(--spring-bounce);
+    }
+
+    .search-input::placeholder {
+      color: rgba(255, 255, 255, 0.65);
+      font-weight: 500;
+    }
+
+    .search-input:focus {
+      background: rgba(255, 255, 255, 0.26);
+      border-color: rgba(255, 255, 255, 0.65);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+      transform: scale(1.01);
+    }
+
+    .search-icon, .clear-icon {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      transition: all 0.3s var(--spring-bounce);
+      z-index: 2;
+    }
+
+    .search-icon {
+      left: 15px;
+      color: rgba(255, 255, 255, 0.75);
+      pointer-events: none;
+    }
+
+    .clear-icon {
+      right: 14px;
+      color: #ffffff;
+      opacity: 0;
+      pointer-events: none;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.22);
+      border-radius: 50%;
+      padding: 3px;
+      width: 22px;
+      height: 22px;
+    }
+
+    .search-wrapper.has-text .clear-icon {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Suggestions Dropdown */
+    .suggestions-overlay {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      max-height: 270px;
+      overflow-y: auto;
+      z-index: 90;
+      display: none;
+      background: rgba(45, 4, 14, 0.95);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 18px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
+    }
+
+    .suggestions-overlay.active {
+      display: block;
+      animation: heavyPop 0.35s var(--spring-bounce);
+    }
+
+    .suggestion-item {
+      padding: 10px 14px;
+      color: #ffffff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .suggestion-item:last-child {
+      border-bottom: none;
+    }
+
+    .suggestion-item:active {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .suggestion-name-wrapper {
+      flex: 1;
+      line-height: 1.3;
+    }
+
+    .suggestion-sticker-wrapper {
+      transform: scale(0.68);
+      transform-origin: right center;
+      flex-shrink: 0;
+    }
+
+    /* Quick Reference Grid */
+    .quick-dates {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .date-box {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 16px;
+      padding: 10px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      transition: transform 0.2s var(--spring-bounce);
+    }
+
+    .date-box:active {
+      transform: scale(0.95);
+    }
+
+    .date-box strong {
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #ffffff;
+    }
+
+    /* Product Grid */
+    .product-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .product-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      gap: 12px;
+      transition: transform 0.2s var(--spring-bounce);
+    }
+
+    .product-card.custom-calc-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.12));
+      border: 1.5px solid rgba(255, 255, 255, 0.45);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    .product-card:active {
+      transform: scale(0.98);
+    }
+
+    .product-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .product-name {
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #ffffff;
+      line-height: 1.25;
+      margin-bottom: 2px;
+    }
+
+    .product-life {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+
+    /* Crisp Vinyl Daydot Stickers */
+    .sticker-mon { --sticker-color: #007AFF; --sticker-text: #ffffff; }
+    .sticker-tue { --sticker-color: #FFCC00; --sticker-text: #000000; }
+    .sticker-wed { --sticker-color: #FF3B30; --sticker-text: #ffffff; }
+    .sticker-thu { --sticker-color: #8B4513; --sticker-text: #ffffff; }
+    .sticker-fri { --sticker-color: #34C759; --sticker-text: #ffffff; }
+    .sticker-sat { --sticker-color: #FF9500; --sticker-text: #ffffff; }
+    .sticker-sun { --sticker-color: #222222; --sticker-text: #ffffff; }
+    .sticker-special { --sticker-color: #e0e0e0; --sticker-text: #222222; }
+
+    .daydot-sticker {
+      display: flex;
+      flex-direction: column;
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      background: #ffffff;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(0, 0, 0, 0.15);
+    }
+
+    .sticker-header {
+      background-color: var(--sticker-color);
+      color: var(--sticker-text);
+      font-weight: 800;
+      font-size: 0.75rem;
+      height: 35%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .sticker-body {
+      height: 65%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #ffffff;
+    }
+
+    .sticker-date-row {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: #111111;
+      line-height: 1;
+    }
+
+    .time-text {
+      margin-top: 2px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #555555;
+      line-height: 1;
+    }
+
+    .special-text-row {
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: var(--costa-bright-red);
+      text-align: center;
+      line-height: 1.15;
+      padding: 0 4px;
+    }
+
+    .quick-dates .daydot-sticker {
+      width: 78px;
+      height: 78px;
+    }
+
+    .no-results {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      font-weight: 700;
+      padding: 24px 12px;
+    }
+
+    /* Flush Bottom Dock */
+    .floating-nav-dock {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 440px;
+      padding: 6px 14px calc(8px + env(safe-area-inset-bottom));
+      background: rgba(45, 4, 14, 0.75);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border-top: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 22px 22px 0 0;
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.45);
+      z-index: 100;
+    }
+
+    .glass-nav-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 18px;
+      padding: 5px;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35);
+    }
+
+    .nav-icon-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 14px;
+      padding: 7px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.35s var(--spring-bounce);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-icon-btn:active {
+      transform: scale(0.94);
+    }
+
+    .nav-btn-line1 {
+      font-size: 0.95rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .nav-btn-line2 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      opacity: 0.9;
+    }
+
+    .nav-icon-btn.active {
+      color: #ffffff;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.1));
+      border: 1.5px solid rgba(255, 255, 255, 0.55);
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.22), inset 0 0 14px rgba(255, 255, 255, 0.35);
+      pointer-events: none;
+    }
+
+    .nav-icon-btn.active::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+      animation: glitterShine 3.5s infinite linear;
+    }
+
+    @keyframes glitterShine {
+      0% { transform: translateX(-150%); }
+      50%, 100% { transform: translateX(150%); }
+    }
+
+    @keyframes heavyPop {
+      0% { transform: scale(0.93); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bubble-layer">
+    <div class="bubble bubble-1"></div>
+    <div class="bubble bubble-2"></div>
+    <div class="bubble bubble-3"></div>
+    <div class="bubble bubble-center-1"></div>
+    <div class="bubble bubble-center-2"></div>
+    <div class="bubble bubble-center-3"></div>
+  </div>
+
+  <main class="app-container">
+    <header class="glass-card header-card">
+      <h1>Daydot Calc</h1>
+    </header>
+
+    <section class="search-section">
+      <div class="search-wrapper" id="searchWrapper">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+
+        <input type="text" id="searchInput" class="search-input" placeholder="Search product or shelf life..." autocomplete="off" autocorrect="off" spellcheck="false" />
+
+        <svg class="clear-icon" id="clearBtn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+
+        <div id="searchSuggestions" class="suggestions-overlay"></div>
+      </div>
+    </section>
+
+    <section class="glass-card">
+      <h2>Quick Reference Dates</h2>
+      <div class="quick-dates" id="quickDatesContainer"></div>
+    </section>
+
+    <section class="product-grid" id="productListContainer"></section>
+  </main>
+
+  <nav class="floating-nav-dock" aria-label="Quick Switcher">
+    <div class="glass-nav-bar">
+      <a href="javascript:void(0)" class="nav-icon-btn active" aria-current="page" onclick="return false;">
+        <span class="nav-btn-line1">Day</span>
+        <span class="nav-btn-line2">Dot</span>
+      </a>
+
+      <a href="https://www.tip2split.com" class="nav-icon-btn" id="tipSplitLink" rel="noopener">
+        <span class="nav-btn-line1">Tip</span>
+        <span class="nav-btn-line2">Split</span>
+      </a>
+    </div>
+  </nav>
+
+  <script>
+    const products = [
+      // --- POWDERS ---
+      { name: "HOT CHOCOLATE POWDER", days: 28, label: "4 WEEKS", keywords: ["hc", "hot choc", "cocoa", "powder", "c", "chocolate powder", "drinking chocolate", "hcp", "blackforest hot chocolate", "hot chocolate", "mocha", "white hot chocolate", "clear scoop"] },
+      { name: "FRAPPÉ POWDER", days: 84, label: "12 WEEKS", keywords: ["frappe", "frap", "frappy", "ice core", "base", "white base", "powder", "f", "caramel frappe", "vanilla frappe", "chocolate frappe", "strawberries and cream frappe", "coffee frappe", "frappuccino", "coral scoop", "blue scoop"] },
+      { name: "MATCHA POWDER (STORE IN ORIGINAL PACKAGING)", months: 3, days: 0, label: "3 MONTHS", keywords: ["macha", "maca", "green tea", "matcha powder", "m", "matcha latte", "iced matcha", "strawberry matcha", "purple scoop", "original packaging"] },
+      { name: "HYFOAMER POWDER", days: 56, label: "8 WEEKS", keywords: ["hyfoamer", "powder", "foam", "white scoop"] },
+      
+      // --- SYRUPS & SAUCES ---
+      { name: "CARAMEL", days: 84, label: "12 WEEKS", keywords: ["carmel", "c", "syrup", "car", "caramel cortado", "caramel latte", "caramel iced latte", "black 4ml pump"] },
+      { name: "VANILLA", days: 84, label: "12 WEEKS", keywords: ["vanila", "v", "syrup", "van", "vanilla latte", "vanilla cappuccino", "vanilla iced coffee", "black 4ml pump"] },
+      { name: "HAZELNUT", days: 84, label: "12 WEEKS", keywords: ["hazel", "hazlenut", "nut", "h", "syrup", "haz", "hazelnut latte", "black 4ml pump"] },
+      { name: "CINNAMON BUN", days: 84, label: "12 WEEKS", keywords: ["cinamon", "bun", "c", "cinn", "cinnamon syrup", "cb", "black 4ml pump"] },
+      { name: "SF CARAMEL", days: 84, label: "12 WEEKS", keywords: ["sugar free caramel", "skinny caramel", "carmel", "sf c", "sfc", "skinny carmel", "black 4ml pump"] }, 
+      { name: "SF VANILLA", days: 84, label: "12 WEEKS", keywords: ["sugar free vanilla", "skinny vanilla", "sf v", "sfv", "black 4ml pump"] },
+      { name: "SF GINGERBREAD", days: 84, label: "12 WEEKS", keywords: ["sugar free gingerbread", "skinny gingerbread", "ginger", "gb", "sf gb", "bread", "spice", "sfgb", "black 4ml pump"] },
+      { name: "SPICED CHAI", months: 3, days: 0, label: "3 MONTHS", keywords: ["chai", "tea", "spice", "c", "spicy", "chai syrup", "chai latte", "spiced chai latte", "iced chai", "black 4ml pump"] },
+      { name: "CANE SUGAR SYRUP", months: 3, days: 0, label: "3 MONTHS", keywords: ["sugar syrup", "simple syrup", "cane", "css", "c", "liquid sugar", "sweet", "plain syrup", "black 4ml pump"] },
+      { name: "MONIN SUGAR FREE", months: 3, days: 0, label: "3 MONTHS", keywords: ["sugar free syrup", "monin sf", "sf syrup", "black 4ml pump"] },
+      { name: "WHITE CHOCOLATE SAUCE", days: 84, label: "12 WEEKS", keywords: ["white choc", "wcs", "white sauce", "wc sauce", "w", "white chocolate", "white 10ml pump"] },
+      { name: "SALTED CARAMEL SAUCE", days: 84, label: "12 WEEKS", keywords: ["salted carmel", "scs", "salt caramel", "sauce", "salt", "salted", "white 10ml pump"] },
+      { name: "STRAWBERRY SAUCE", days: 84, label: "12 WEEKS", keywords: ["strawbery", "berry", "strawb", "red sauce", "sauce", "strawberry", "white 10ml pump"] },
+      { name: "MANGO SAUCE", days: 84, label: "12 WEEKS", keywords: ["mango", "fruit", "sauce", "yellow sauce", "white 10ml pump"] },
+      { name: "CHOCOLATE CARAMEL SAUCE", days: 84, label: "12 WEEKS", keywords: ["choc caramel", "ccs", "c", "choc sauce", "chocolate sauce", "white 10ml pump"] },
+      { name: "MONIN WHITE PEACH SYRUP", months: 3, days: 0, label: "3 MONTHS", keywords: ["peach", "white peach", "monin", "wp", "syrup", "fruit syrup", "grey 8ml pump"] },
+      { name: "CONDENSED MILK SAUCE", days: 56, label: "8 WEEKS", keywords: ["condensed milk", "condensed", "milk sauce", "cms", "white 10ml pump", "sweet milk"] },
+      { name: "MAPLE FLAVOURED SAUCE", days: 84, label: "12 WEEKS", keywords: ["maple", "maple sauce", "maple flavoured sauce", "mfs", "pancake", "syrup", "white 10ml pump"] },
+      { name: "AGAVE FLAVOURED SYRUP", days: 60, label: "60 DAYS", keywords: ["agave", "syrup", "vegan", "sweetener", "black 4ml pump"] },
+      { name: "MONIN JASMINE SYRUP", months: 3, days: 0, label: "3 MONTHS", keywords: ["jasmine", "monin", "syrup", "floral", "grey 8ml pump"] },
+      { name: "CHERRY VANILLA SAUCE", days: 56, label: "8 WEEKS", keywords: ["cherry", "cvs", "c", "sauce", "vanilla cherry", "chery"] },
+      { name: "UBE FLAVOUR SYRUP", days: 42, label: "6 WEEKS", keywords: ["ube", "purple", "oobe", "yam", "syrup", "flavour"] },
+      { name: "HAZELNUT CRÈME FLAVOUR SAUCE", days: 56, label: "8 WEEKS", keywords: ["hazelnut creme", "creme", "sauce", "hazelnut sauce", "hcs"] },
+
+      // --- COFFEE / TOPPINGS / EXTRAS / CAMPAIGN TOPPINGS ---
+      { name: "OPEN MOCHA ITALIA COFFEE BAGS", days: 2, label: "48 HOURS", includeTime: true, keywords: ["beans", "coffee beans", "mocha italia", "espresso", "c", "mi", "roast", "bag", "latte", "cappuccino", "flat white", "americano", "cortado", "macchiato", "iced latte", "iced americano", "ristretto"] },
+      { name: "COSTA INSTANT COFFEE", days: 28, label: "4 WEEKS", keywords: ["instant", "c", "coffee", "tin", "powder", "decaf instant", "purple scoop"] },
+      { name: "CAPPUCCINO DUSTING", days: 28, label: "4 WEEKS", keywords: ["dusting", "choc dusting", "capp", "c", "chocolate shaker", "sprinkles", "shaker"] },
+      { name: "MANGO BUBBLES (KEEP CHILLED)", days: 28, label: "4 WEEKS", keywords: ["boba", "bubbles", "pearls", "mango boba", "popping", "balls", "bubble tea", "bubble frappe", "clear scoop", "chilled"] },
+      { name: "FRUIT COOLER BASES (KEEP CHILLED)", days: 4, label: "5 DAYS", keywords: ["cooler", "fruit cooler", "base", "smoothie", "c", "puree", "slush", "slushy", "mango and passionfruit cooler", "red summer berries cooler", "mango cooler", "berry cooler", "watermelon", "refresher", "chilled"] }, 
+      { name: "STRAWBERRY, WATERMELON & MINT CONCENTRATE", days: 10, label: "10 DAYS", keywords: ["refresher", "concentrate", "juice", "drink", "watermelon refresher", "strawberry refresher", "mint", "strawberry watermelon", "all refresher concentrates"] },
+      { name: "FREEZE DRIED STRAWBERRY PIECES", days: 21, label: "21 DAYS", keywords: ["freeze dried", "strawberry", "pieces", "fruit", "inclusion", "dry", "purple scoop"] },
+      { name: "MARSHMALLOWS", specialText: "SEE BAG FOR BEST BEFORE", label: "VARIES", keywords: ["marshmalows", "mallows", "mini marshmallows", "fluffy", "marshmellows"] },
+      { name: "ALL TEABAGS", months: 3, days: 0, label: "3 MONTHS", keywords: ["tea", "teabags", "all teabags", "tea & infusions", "english breakfast tea", "decaf english breakfast", "earl grey", "peppermint tea", "mint infusion", "berry infusion", "green tea", "spiced apple", "mellow mango", "citrus zing", "infusions", "bags", "eb", "decaf", "fruit tea", "apple and cinnamon tea"] },
+      { name: "CINNAMON STICKS", months: 6, days: 0, label: "6 MONTHS", keywords: ["cinnamon", "sticks", "spice", "garnish"] },
+      { name: "LEMON / ORANGE SLICES", days: 28, label: "4 WEEKS", keywords: ["lemon", "orange", "citrus", "garnish", "fruit", "slice", "slices", "orange slices", "lemon slices"] },
+      { name: "CHILLED WATER IN JUG", days: 1, label: "24 HOURS", includeTime: true, keywords: ["water", "jug", "h2o", "tap", "c", "cold water", "pitcher", "chilled"] },
+      { name: "PREPARED MATCHA IN SQUEEZY BOTTLE (KEEP CHILLED)", days: 2, label: "48 HOURS", includeTime: true, keywords: ["liquid matcha", "squeezy", "macha", "bottle", "prep matcha", "made matcha", "chilled"] },
+      { name: "CRUNCHY BISCUIT CRUMB", days: 28, label: "4 WEEKS", keywords: ["biscuit", "crumb", "crunchy", "biscuit crumb", "topping", "cookie", "crunchy biscuit crumb"] },
+      { name: "FREEZE DRIED DRAGON FRUIT PIECES", days: 21, label: "21 DAYS", keywords: ["freeze dried", "dragon fruit", "pieces", "fruit", "inclusion", "dragonfruit", "dry"] },
+      { name: "FREEZE DRIED LIME PIECES", months: 6, days: 0, label: "6 MONTHS", keywords: ["freeze dried", "lime", "pieces", "fruit", "inclusion", "dry"] },
+
+      // --- DAIRY ALTERNATIVES / LIGHT WHIP / CREAM ---
+      { name: "DAIRY ALTERNATIVES / LIGHT WHIP (OPEN CARTON)", days: 4, label: "5 DAYS", keywords: ["milk", "oat", "almond", "soy", "coconut", "soya", "dairy free", "alt milk", "df", "carton", "alpro", "sproud", "adez", "skinny whip carton", "oat latte", "soya flat white", "coconut hot chocolate", "almond milk"] }, 
+      { name: "PREPARED LIGHT WHIP / WHIPPED CREAM IN CANISTERS", days: 1, label: "24 HOURS", includeTime: true, keywords: ["skinny whip", "light cream", "canister", "can", "squirt", "made skinny whip", "bottle", "whip", "cream", "heavy"] },
+      { name: "WHIPPING CREAM (OPEN CARTON / BOTTLE)", days: 2, label: "3 DAYS", keywords: ["whip", "cream", "heavy cream", "c", "carton", "liquid cream", "unwhipped", "pour", "bottle"] } 
+    ];
+
+    function getEditDistance(a, b) {
+      if (a.length === 0) return b.length;
+      if (b.length === 0) return a.length;
+      let matrix = [];
+      for (let i = 0; i <= b.length; i++) { matrix[i] = [i]; }
+      for (let j = 0; j <= a.length; j++) { matrix[0][j] = j; }
+      for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+          if (b.charAt(i - 1) === a.charAt(j - 1)) {
+            matrix[i][j] = matrix[i - 1][j - 1];
+          } else {
+            matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
+          }
+        }
+      }
+      return matrix[b.length][a.length];
+    }
+
+    // Natural Language Shelf-Life Parser
+    function parseDurationQuery(rawQuery) {
+      if (!rawQuery) return null;
+      let query = rawQuery.toLowerCase().trim().replace(/[-_]/g, ' ');
+
+      const wordToNum = {
+        one: 1, a: 1, an: 1, two: 2, three: 3, four: 4, five: 5,
+        six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12
+      };
+
+      for (const [w, n] of Object.entries(wordToNum)) {
+        query = query.replace(new RegExp(`\\b${w}\\b`, 'g'), n);
+      }
+
+      const match = query.match(/^(\d+)\s*([a-z]+)?$/);
+      if (!match) return null;
+
+      const num = parseInt(match[1], 10);
+      if (isNaN(num) || num <= 0 || num > 730) return null;
+
+      const unit = match[2] || '';
+
+      const isHour = /^(h|hr|hrs|hour|hours|hou|hourss)$/.test(unit);
+      const isDay = /^(d|dy|dys|day|days|da|dasy)$/.test(unit);
+      const isWeek = /^(w|wk|wks|week|weeks|wee|weks|wek)$/.test(unit);
+      const isMonth = /^(m|mo|mos|mth|mths|month|months|mon|mnth|mnths)$/.test(unit);
+
+      if (isHour || (!unit && (num === 24 || num === 48))) {
+        const days = Math.round(num / 24) || 1;
+        return {
+          name: `${num} ${num === 1 ? 'HOUR' : 'HOURS'}`,
+          label: `${num} ${num === 1 ? 'HOUR' : 'HOURS'}`,
+          days: days,
+          months: 0,
+          includeTime: true,
+          isCustom: true
+        };
+      }
+
+      if (isWeek) {
+        return {
+          name: `${num} ${num === 1 ? 'WEEK' : 'WEEKS'}`,
+          label: `${num} ${num === 1 ? 'WEEK' : 'WEEKS'} (${num * 7} DAYS)`,
+          days: num * 7,
+          months: 0,
+          includeTime: false,
+          isCustom: true
+        };
+      }
+
+      if (isMonth) {
+        return {
+          name: `${num} ${num === 1 ? 'MONTH' : 'MONTHS'}`,
+          label: `${num} ${num === 1 ? 'MONTH' : 'MONTHS'}`,
+          days: 0,
+          months: num,
+          includeTime: false,
+          isCustom: true
+        };
+      }
+
+      if (isDay || (!unit && num > 0)) {
+        const equivWeeks = num % 7 === 0 ? ` (${num / 7} WEEKS)` : '';
+        return {
+          name: `${num} ${num === 1 ? 'DAY' : 'DAYS'}`,
+          label: `${num} ${num === 1 ? 'DAY' : 'DAYS'}${equivWeeks}`,
+          days: num,
+          months: 0,
+          includeTime: false,
+          isCustom: true
+        };
+      }
+
+      return null;
+    }
+
+    function calculateFutureDateHtml(daysToAdd = 0, monthsToAdd = 0, includeTime = false) {
+      const date = new Date();
+      if (monthsToAdd !== 0) date.setMonth(date.getMonth() + monthsToAdd);
+      if (daysToAdd !== 0) date.setDate(date.getDate() + daysToAdd);
+
+      const weekdayStr = date.toLocaleDateString('en-GB', { weekday: 'short' }).toUpperCase();
+      const dd = String(date.getDate()).padStart(2, '0');
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dateStr = `${dd}/${mm}`;
+      const dayClass = `sticker-${weekdayStr.toLowerCase()}`;
+
+      let timeHtml = '';
+      if (includeTime) {
+        let hours = date.getHours();
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+        timeHtml = `<div class="time-text">${hours}:${minutes} ${ampm}</div>`;
+      }
+
+      return `
+        <div class="daydot-sticker ${dayClass}">
+          <div class="sticker-header">${weekdayStr}</div>
+          <div class="sticker-body">
+            <div class="sticker-date-row">${dateStr}</div>
+            ${timeHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    const quickIntervals = [
+      { label: "3 MONTHS", months: 3, days: 0 },
+      { label: "12 WEEKS", months: 0, days: 84 },
+      { label: "8 WEEKS", months: 0, days: 56 },
+      { label: "4 WEEKS", months: 0, days: 28 },
+      { label: "5 DAYS", months: 0, days: 4 },
+      { label: "3 DAYS", months: 0, days: 3 },
+      { label: "48 HOURS", months: 0, days: 2, includeTime: true },
+      { label: "24 HOURS", months: 0, days: 1, includeTime: true }
+    ];
+
+    const quickContainer = document.getElementById('quickDatesContainer');
+    quickIntervals.forEach(interval => {
+      const box = document.createElement('div');
+      box.className = 'date-box';
+      box.innerHTML = `
+        <strong>${interval.label}</strong>
+        ${calculateFutureDateHtml(interval.days, interval.months, interval.includeTime)}
+      `;
+      quickContainer.appendChild(box);
+    });
+
+    const searchInput = document.getElementById('searchInput');
+    const searchWrapper = document.getElementById('searchWrapper');
+    const clearBtn = document.getElementById('clearBtn');
+    const searchSuggestions = document.getElementById('searchSuggestions');
+    const productListContainer = document.getElementById('productListContainer');
+
+    function filterMatches(query) {
+      const searchRaw = query.trim();
+      const searchLower = searchRaw.toLowerCase();
+      if (!searchLower) return products;
+
+      const durationItem = parseDurationQuery(searchLower);
+      const isPureNumber = /^\d+$/.test(searchLower);
+
+      const matched = products.filter(product => {
+        if (durationItem) {
+          if (durationItem.days > 0 && product.days === durationItem.days) return true;
+          if (durationItem.months > 0 && product.months === durationItem.months) return true;
+        }
+
+        if (isPureNumber) {
+          const labelNum = product.label.split(' ')[0];
+          if (labelNum === searchLower) return true;
+          if (searchLower === "24" && product.label.includes("24 HOURS")) return true;
+          if (searchLower === "48" && (product.label.includes("48") || product.label === "2 DAYS")) return true;
+          if (searchLower === "1" && product.label.includes("24 HOURS")) return true;
+          if (searchLower === "2" && (product.label === "2 DAYS" || product.label.includes("48"))) return true;
+          if (searchLower === "3" && (product.label.includes("3 MONTHS") || product.label === "3 DAYS")) return true;
+          if (searchLower === "6" && product.label.includes("6 MONTHS")) return true;
+          return false;
+        }
+
+        const labelParts = product.label.toLowerCase().split(' ');
+        if (labelParts.length >= 2 && (labelParts[0] + labelParts[1].charAt(0)) === searchLower) {
+          return true;
+        }
+
+        if (product.name.toLowerCase().includes(searchLower)) return true;
+        if (product.label.toLowerCase().includes(searchLower)) return true;
+        if (product.keywords && product.keywords.some(k => k.toLowerCase().includes(searchLower))) return true;
+
+        if (searchLower.length > 3) {
+          for (let word of product.name.toLowerCase().split(' ')) {
+            if (word.length > 3 && getEditDistance(searchLower, word) <= 2) return true;
+          }
+          if (product.keywords) {
+            for (let k of product.keywords) {
+              if (k.length > 3 && getEditDistance(searchLower, k) <= 2) return true;
+            }
+          }
+        }
+        return false;
+      });
+
+      if (durationItem) {
+        return [durationItem, ...matched];
+      }
+
+      return matched;
+    }
+
+    function renderSticker(product) {
+      if (product.specialText) {
+        return `
+          <div class="daydot-sticker sticker-special">
+            <div class="sticker-header">INFO</div>
+            <div class="sticker-body">
+              <div class="special-text-row">${product.specialText}</div>
+            </div>
+          </div>
+        `;
+      }
+      return calculateFutureDateHtml(product.days || 0, product.months || 0, product.includeTime === true);
+    }
+
+    function displayProducts(filterText = '') {
+      productListContainer.innerHTML = '';
+      const matched = filterMatches(filterText);
+
+      if (matched.length === 0) {
+        productListContainer.innerHTML = '<div class="glass-card no-results">No matching products found.</div>';
+        return;
+      }
+
+      matched.forEach(product => {
+        const card = document.createElement('article');
+        card.className = `glass-card product-card ${product.isCustom ? 'custom-calc-card' : ''}`;
+        card.innerHTML = `
+          <div class="product-info">
+            <div class="product-name">${product.isCustom ? '⚡ ' + product.name : product.name}</div>
+            <div class="product-life">${product.isCustom ? 'CALCULATED EXPIRY: ' + product.label : 'Shelf life: ' + product.label}</div>
+          </div>
+          ${renderSticker(product)}
+        `;
+        productListContainer.appendChild(card);
+      });
+    }
+
+    searchInput.addEventListener('input', (e) => {
+      const val = e.target.value;
+      if (val.length > 0) {
+        searchWrapper.classList.add('has-text');
+      } else {
+        searchWrapper.classList.remove('has-text');
+      }
+
+      displayProducts(val);
+
+      const trimmed = val.trim().toLowerCase();
+      if (!trimmed) {
+        searchSuggestions.classList.remove('active');
+        return;
+      }
+
+      const top5 = filterMatches(trimmed).slice(0, 5);
+      if (top5.length > 0) {
+        searchSuggestions.innerHTML = '';
+        top5.forEach(match => {
+          const item = document.createElement('div');
+          item.className = 'suggestion-item';
+          item.innerHTML = `
+            <div class="suggestion-name-wrapper">${match.isCustom ? '⚡ ' + match.name + ' (Calculated)' : match.name}</div>
+            <div class="suggestion-sticker-wrapper">${renderSticker(match)}</div>
+          `;
+          item.addEventListener('click', () => {
+            searchInput.value = match.name;
+            searchWrapper.classList.add('has-text');
+            searchSuggestions.classList.remove('active');
+            displayProducts(match.name);
+          });
+          searchSuggestions.appendChild(item);
+        });
+        searchSuggestions.classList.add('active');
+      } else {
+        searchSuggestions.classList.remove('active');
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      searchWrapper.classList.remove('has-text');
+      searchSuggestions.classList.remove('active');
+      displayProducts('');
+      searchInput.focus();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+        searchSuggestions.classList.remove('active');
+      }
+    });
+
+    displayProducts();
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then((registration) => {
+          registration.update();
+        }).catch(() => {});
+
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
+        });
+      });
+    }
+  </script>
+</body>
+</html>
